@@ -22,5 +22,6 @@
   "imageCarousel.chat.enabled": true,
   "chat.customizationsMenu.enabled": true,
   "chat.useCustomizationsInParentRepositories": true,
-  "chat.useCustomAgentHooks": true
+  "chat.useCustomAgentHooks": true,
+  "snyk.advanced.autoSelectOrganization": true
 }
