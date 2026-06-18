@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useBingoGame } from './hooks/useBingoGame';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
 import { BingoModal } from './components/BingoModal';
+import { CardDeckScreen } from './components/CardDeckScreen';
+import type { AppMode } from './types';
 
 function App() {
+  const [appMode, setAppMode] = useState<AppMode | null>(null);
+
   const {
     gameState,
     board,
@@ -15,8 +20,17 @@ function App() {
     dismissModal,
   } = useBingoGame();
 
-  if (gameState === 'start') {
-    return <StartScreen onStart={startGame} />;
+  if (appMode === null || (appMode === 'bingo' && gameState === 'start')) {
+    return (
+      <StartScreen
+        onStartBingo={() => { setAppMode('bingo'); startGame(); }}
+        onStartShuffle={() => setAppMode('shuffle')}
+      />
+    );
+  }
+
+  if (appMode === 'shuffle') {
+    return <CardDeckScreen onBack={() => setAppMode(null)} />;
   }
 
   return (
@@ -26,7 +40,7 @@ function App() {
         winningSquareIds={winningSquareIds}
         hasBingo={gameState === 'bingo'}
         onSquareClick={handleSquareClick}
-        onReset={resetGame}
+        onReset={() => { resetGame(); setAppMode(null); }}
       />
       {showBingoModal && (
         <BingoModal onDismiss={dismissModal} />
