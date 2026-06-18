@@ -398,4 +398,103 @@ describe('bingoLogic', () => {
       expect(ids).toEqual(new Set(lastRowIds));
     });
   });
+
+  describe('Four Corners bingo pattern', () => {
+    it('should detect four corners as a bingo: [0, 4, 20, 24]', () => {
+      const board = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const result = checkBingo(board);
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('corners');
+    });
+
+    it('should return the correct squares array for four corners', () => {
+      const board = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const result = checkBingo(board);
+      expect(result?.squares).toEqual([0, 4, 20, 24]);
+    });
+
+    it('should NOT detect bingo with only 3 corners marked', () => {
+      const board = generateBoard();
+      [0, 4, 20].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      expect(checkBingo(board)).toBeNull();
+    });
+
+    it('should NOT detect bingo with only 2 corners marked', () => {
+      const board = generateBoard();
+      [0, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      expect(checkBingo(board)).toBeNull();
+    });
+
+    it('should detect four corners even when other squares are also marked', () => {
+      const board = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      [1, 6, 12, 18].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const result = checkBingo(board);
+      expect(result).not.toBeNull();
+      expect(result?.type).toBe('corners');
+      expect(result?.squares).toEqual([0, 4, 20, 24]);
+    });
+
+    it('should return type "corners" in winning line', () => {
+      const board = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const result = checkBingo(board);
+      expect(result?.type).toBe('corners');
+    });
+
+    it('should include four corners in getWinningSquareIds result', () => {
+      const winningLine = {
+        type: 'corners' as const,
+        index: 0,
+        squares: [0, 4, 20, 24],
+      };
+      const result = getWinningSquareIds(winningLine);
+      expect(result.size).toBe(4);
+      expect(result.has(0)).toBe(true);
+      expect(result.has(4)).toBe(true);
+      expect(result.has(20)).toBe(true);
+      expect(result.has(24)).toBe(true);
+    });
+
+    it('integration: should detect four corners win after toggling', () => {
+      const board = generateBoard();
+      let current = board;
+      [0, 4, 20, 24].forEach((i) => {
+        if (!current[i].isMarked) {
+          current = toggleSquare(current, i);
+        }
+      });
+      expect(checkBingo(current)).not.toBeNull();
+      expect(checkBingo(current)?.type).toBe('corners');
+    });
+
+    it('integration: should lose four corners win after untoggling one corner', () => {
+      const board = generateBoard();
+      let current = board;
+      [0, 4, 20, 24].forEach((i) => {
+        if (!current[i].isMarked) {
+          current = toggleSquare(current, i);
+        }
+      });
+      expect(checkBingo(current)).not.toBeNull();
+      current = toggleSquare(current, 0);
+      expect(checkBingo(current)).toBeNull();
+    });
+  });
 });
